@@ -1,10 +1,10 @@
 import passport from 'passport';
-import passportGoogleOauth from 'passport-google-oauth20';
-// import { Strategy } from 'passport-google-oauth20';
+// import passportGoogleOauth from 'passport-google-oauth20';
+import { Strategy } from 'passport-google-oauth20';
 import { key } from './keys.js';
 import User from '../models/User.js';
 
-const GoogleStrategy = passportGoogleOauth.Strategy;
+// const GoogleStrategy = passportGoogleOauth.Strategy;
 
 passport.serializeUser(( user, done) =>{    
     done(null,user.id); // id table mongodb (_ids)
@@ -19,13 +19,14 @@ passport.deserializeUser(( id, done) =>{
 });
 
 passport.use(
-    // new Strategy({
-    new GoogleStrategy({
+    // new GoogleStrategy({
+    new Strategy({
             // option for google strategy
             clientID : key.google.clientID,
             clientSecret : key.google.clientSecret,
             callbackURL : 'http://localhost:3000/auth/google/redirect'
-            // callbackURL : 'auth/google/redirect'
+            // callbackURL : 'auth/google/redirect',
+            // passReqToCallback :  true
         },  
             (accessToken, refreshToken, profile, done) => {
                 // passport callback function()
@@ -33,8 +34,8 @@ passport.use(
                 //     return done( err, user );
                 // });
                 // console.log(profile);
-
-                User.findOne({googleId : profile.id})
+                
+                User.findOne({googleId : profile?.id})
                 .then((currUser) => {
                     if (currUser) {
                         console.log(`User ${currUser.username} \n ${currUser.email} already exist`);
